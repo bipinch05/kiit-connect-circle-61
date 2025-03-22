@@ -9,7 +9,9 @@ interface GlassCardProps {
   clickable?: boolean;
   animation?: "fade" | "scale" | "slide" | "none";
   delay?: number;
-  onClick?: () => void; 
+  onClick?: () => void;
+  title?: string;
+  titleRight?: React.ReactNode; // Add this prop to support edit buttons
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({
@@ -20,6 +22,8 @@ const GlassCard: React.FC<GlassCardProps> = ({
   animation = "none",
   delay = 0,
   onClick,
+  title,
+  titleRight,
 }) => {
   const getAnimationClass = () => {
     if (animation === "none") return "";
@@ -49,6 +53,15 @@ const GlassCard: React.FC<GlassCardProps> = ({
       )}
       onClick={onClick}
     >
+      {/* Add title area if title prop is provided */}
+      {title && (
+        <div className="flex justify-between items-center px-6 pt-6 pb-2">
+          <h2 className="text-white font-medium">{title}</h2>
+          {titleRight && (
+            <div className="flex items-center">{titleRight}</div>
+          )}
+        </div>
+      )}
       {children}
     </div>
   );

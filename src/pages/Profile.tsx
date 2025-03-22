@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -10,7 +9,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GlassCard from "@/components/ui/GlassCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
-import ProfileEditor from "@/components/profile/ProfileEditor";
+import ProfileEditor, { ProfileData, ProfileEditorRef } from "@/components/profile/ProfileEditor";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 
@@ -114,7 +113,7 @@ const Profile = () => {
   }, [id]);
   
   // State for profile data
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<ProfileData>({
     name: id === "1" ? "Priya Sharma" : 
           id === "2" ? "Rahul Verma" :
           id === "3" ? "Ananya Patel" :
@@ -263,6 +262,9 @@ const Profile = () => {
     });
   };
 
+  // Create a ref to hold the ProfileEditor component
+  const profileEditorRef = React.useRef<ProfileEditorRef>(null);
+  
   return (
     <div className="min-h-screen bg-kiit-black">
       <Navbar />
@@ -272,7 +274,11 @@ const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left sidebar */}
             <div className="lg:col-span-1">
-              <GlassCard animation="fade" delay={100} className="overflow-hidden">
+              <GlassCard 
+                animation="fade" 
+                delay={100} 
+                className="overflow-hidden"
+              >
                 <div className="relative h-32 bg-gradient-to-r from-kiit-gold/20 to-kiit-gold/5">
                   {isOwnProfile && (
                     <button 
@@ -424,33 +430,38 @@ const Profile = () => {
                 </div>
               </GlassCard>
               
-              <GlassCard animation="fade" delay={200} className="mt-6 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-white font-medium">Skills</h2>
-                  {isOwnProfile && (
+              <GlassCard 
+                animation="fade" 
+                delay={200} 
+                className="mt-6" 
+                title="Skills"
+                titleRight={isOwnProfile && profileEditorRef.current ? 
+                  <div onClick={() => profileEditorRef.current.handleEdit("skills")}>
                     <button
                       type="button"
                       className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                      onClick={() => document.getElementById('edit-skills-button')?.click()}
                     >
                       <Edit size={14} className="text-white/70" />
                     </button>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile.skills.map((skill) => (
-                    <div 
-                      key={skill.id}
-                      className="px-3 py-1.5 rounded-full text-sm bg-white/5 text-white/80"
-                    >
-                      {skill.name}
-                      {skill.level && (
-                        <span className="ml-1 text-xs text-white/50">
-                          • {skill.level}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                  </div> : undefined
+                }
+              >
+                <div className="px-6 pb-6">
+                  <div className="flex flex-wrap gap-2">
+                    {profile.skills.map((skill) => (
+                      <div 
+                        key={skill.id}
+                        className="px-3 py-1.5 rounded-full text-sm bg-white/5 text-white/80"
+                      >
+                        {skill.name}
+                        {skill.level && (
+                          <span className="ml-1 text-xs text-white/50">
+                            • {skill.level}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </GlassCard>
             </div>
@@ -467,14 +478,15 @@ const Profile = () => {
                       <div className="mb-6">
                         <div className="flex items-center justify-between mb-3">
                           <h2 className="text-white font-medium">About</h2>
-                          {isOwnProfile && (
-                            <button
-                              type="button"
-                              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                              onClick={() => document.getElementById('edit-about-button')?.click()}
-                            >
-                              <Edit size={14} className="text-white/70" />
-                            </button>
+                          {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("about")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                           )}
                         </div>
                         <p className="text-white/70 whitespace-pre-line">{profile.bio}</p>
@@ -483,14 +495,15 @@ const Profile = () => {
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <h2 className="text-white font-medium">Current</h2>
-                          {isOwnProfile && (
-                            <button
-                              type="button"
-                              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                              onClick={() => document.getElementById('edit-experience-button')?.click()}
-                            >
-                              <Edit size={14} className="text-white/70" />
-                            </button>
+                          {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("experience")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                           )}
                         </div>
                         <div className="space-y-4">
@@ -546,14 +559,15 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Experience</h2>
-                        {isOwnProfile && (
-                          <button
-                            type="button"
-                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                            onClick={() => document.getElementById('edit-experience-button')?.click()}
-                          >
-                            <Edit size={14} className="text-white/70" />
-                          </button>
+                        {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("experience")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                         )}
                       </div>
                       
@@ -592,14 +606,15 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Education</h2>
-                        {isOwnProfile && (
-                          <button
-                            type="button"
-                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                            onClick={() => document.getElementById('edit-education-button')?.click()}
-                          >
-                            <Edit size={14} className="text-white/70" />
-                          </button>
+                        {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("education")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                         )}
                       </div>
                       
@@ -631,15 +646,15 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Skills</h2>
-                        {isOwnProfile && (
-                          <button 
-                            id="edit-skills-button"
-                            type="button"
-                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                            onClick={() => document.getElementById('edit-skills-button')?.click()}
-                          >
-                            <Edit size={14} className="text-white/70" />
-                          </button>
+                        {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("skills")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                         )}
                       </div>
                       
@@ -679,14 +694,15 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Achievements</h2>
-                        {isOwnProfile && (
-                          <button
-                            type="button"
-                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                            onClick={() => document.getElementById('edit-achievements-button')?.click()}
-                          >
-                            <Edit size={14} className="text-white/70" />
-                          </button>
+                        {isOwnProfile && profileEditorRef.current && (
+                            <div onClick={() => profileEditorRef.current.handleEdit("achievements")}>
+                              <button
+                                type="button"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              >
+                                <Edit size={14} className="text-white/70" />
+                              </button>
+                            </div>
                         )}
                       </div>
                       
@@ -718,21 +734,14 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
-      {/* Hidden edit buttons for the ProfileEditor to access */}
-      <div className="hidden">
-        <button id="edit-about-button">Edit About</button>
-        <button id="edit-contact-button">Edit Contact</button>
-        <button id="edit-social-button">Edit Social</button>
-        <button id="edit-education-button">Edit Education</button>
-        <button id="edit-experience-button">Edit Experience</button>
-        <button id="edit-skills-button">Edit Skills</button>
-        <button id="edit-achievements-button">Edit Achievements</button>
-      </div>
       
       {/* Profile Editor Component - Only shown when it's the user's own profile */}
       {isOwnProfile && (
-        <ProfileEditor profileData={profile} onSave={handleProfileSave} />
+        <ProfileEditor 
+          ref={profileEditorRef}
+          profileData={profile} 
+          onSave={handleProfileSave} 
+        />
       )}
       
       <Footer />
