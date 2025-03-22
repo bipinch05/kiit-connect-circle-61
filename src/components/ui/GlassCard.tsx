@@ -11,7 +11,7 @@ interface GlassCardProps {
   delay?: number;
   onClick?: () => void;
   title?: string;
-  titleRight?: React.ReactNode; // Add this prop to support edit buttons
+  titleRight?: React.ReactNode;
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({
@@ -45,7 +45,7 @@ const GlassCard: React.FC<GlassCardProps> = ({
   return (
     <div
       className={cn(
-        "neo-glass rounded-xl overflow-hidden",
+        "neo-glass rounded-xl overflow-hidden relative",
         hover && "elevated-hover",
         clickable && "cursor-pointer active:scale-[0.98]",
         getAnimationClass(),

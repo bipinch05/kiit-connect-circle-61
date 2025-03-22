@@ -1,4 +1,3 @@
-
 import React, { forwardRef, useImperativeHandle } from "react";
 import { 
   Plus, 
@@ -62,7 +61,7 @@ interface Social {
   facebook: string;
 }
 
-interface ProfileData {
+export interface ProfileData {
   name: string;
   headline: string;
   location: string;
@@ -93,7 +92,6 @@ const ProfileEditor = forwardRef<ProfileEditorRef, ProfileEditorProps>(
     const [isEditing, setIsEditing] = React.useState<EditableSection | null>(null);
     const [editData, setEditData] = React.useState<any>(null);
     
-    // For new items
     const [newSkill, setNewSkill] = React.useState("");
     const [newSkillLevel, setNewSkillLevel] = React.useState<"Beginner" | "Intermediate" | "Advanced" | "Expert">("Intermediate");
     
@@ -101,7 +99,6 @@ const ProfileEditor = forwardRef<ProfileEditorRef, ProfileEditorProps>(
       return Math.random().toString(36).substr(2, 9);
     };
     
-    // Expose the handleEdit method via ref
     useImperativeHandle(ref, () => ({
       handleEdit: (section: EditableSection) => {
         handleEdit(section);
@@ -186,7 +183,6 @@ const ProfileEditor = forwardRef<ProfileEditorRef, ProfileEditorProps>(
       setEditData(null);
     };
 
-    // Helper functions for arrays
     const addEducation = () => {
       setEditData([
         ...editData,
@@ -255,7 +251,6 @@ const ProfileEditor = forwardRef<ProfileEditorRef, ProfileEditorProps>(
       );
     };
 
-    // Render appropriate edit form based on section
     const renderEditForm = () => {
       if (!isEditing || !editData) return null;
       
@@ -736,5 +731,4 @@ const ProfileEditor = forwardRef<ProfileEditorRef, ProfileEditorProps>(
 
 ProfileEditor.displayName = "ProfileEditor";
 
-export { ProfileEditor, type ProfileData, type ProfileEditorRef };
 export default ProfileEditor;
