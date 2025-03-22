@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -9,10 +10,12 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GlassCard from "@/components/ui/GlassCard";
 import AnimatedButton from "@/components/ui/AnimatedButton";
+import ProfileEditor from "@/components/profile/ProfileEditor";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 
 interface Education {
+  id: string;
   degree: string;
   institution: string;
   department: string;
@@ -21,6 +24,7 @@ interface Education {
 }
 
 interface Experience {
+  id: string;
   role: string;
   company: string;
   location?: string;
@@ -31,8 +35,16 @@ interface Experience {
 }
 
 interface Skill {
+  id: string;
   name: string;
   level?: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  year: string;
+  description?: string;
 }
 
 interface ProfileTabsProps {
@@ -81,6 +93,11 @@ const Profile = () => {
   // Check if it's the user's own profile
   const isOwnProfile = !id || id === "me";
 
+  // Generate ID for each item
+  const generateId = () => {
+    return Math.random().toString(36).substr(2, 9);
+  };
+
   useEffect(() => {
     // This would be an API call in a real app
     // Here we'll simulate connections for the predefined alumni
@@ -96,8 +113,8 @@ const Profile = () => {
     }
   }, [id]);
   
-  // Mock profile data - in a real app, this would be fetched from an API
-  const profile = {
+  // State for profile data
+  const [profile, setProfile] = useState({
     name: id === "1" ? "Priya Sharma" : 
           id === "2" ? "Rahul Verma" :
           id === "3" ? "Ananya Patel" :
@@ -131,6 +148,7 @@ const Profile = () => {
     },
     education: [
       {
+        id: generateId(),
         degree: "B.Tech",
         institution: "KIIT University",
         department: "Computer Science",
@@ -138,6 +156,7 @@ const Profile = () => {
         description: "Specialized in AI and Machine Learning. President of the Coding Club. Graduated with honors.",
       },
       {
+        id: generateId(),
         degree: "M.S.",
         institution: "Stanford University",
         department: "Computer Science",
@@ -147,6 +166,7 @@ const Profile = () => {
     ],
     experience: [
       {
+        id: generateId(),
         role: "Software Engineer",
         company: "Google",
         location: "San Francisco, CA",
@@ -156,6 +176,7 @@ const Profile = () => {
         description: "Working on cloud infrastructure and distributed systems. Leading a team of 5 engineers on a new product initiative.",
       },
       {
+        id: generateId(),
         role: "Software Developer",
         company: "Microsoft",
         location: "Seattle, WA",
@@ -165,6 +186,7 @@ const Profile = () => {
         description: "Developed features for Microsoft Teams. Improved video call quality algorithms.",
       },
       {
+        id: generateId(),
         role: "Software Engineering Intern",
         company: "Amazon",
         location: "Bangalore, India",
@@ -175,37 +197,40 @@ const Profile = () => {
       },
     ],
     skills: [
-      { name: "JavaScript", level: "Expert" },
-      { name: "React", level: "Expert" },
-      { name: "Node.js", level: "Advanced" },
-      { name: "Python", level: "Advanced" },
-      { name: "TypeScript", level: "Advanced" },
-      { name: "Docker", level: "Intermediate" },
-      { name: "Kubernetes", level: "Intermediate" },
-      { name: "GraphQL", level: "Advanced" },
-      { name: "MongoDB", level: "Advanced" },
-      { name: "SQL", level: "Advanced" },
-      { name: "AWS", level: "Advanced" },
-      { name: "Machine Learning", level: "Intermediate" },
+      { id: generateId(), name: "JavaScript", level: "Expert" },
+      { id: generateId(), name: "React", level: "Expert" },
+      { id: generateId(), name: "Node.js", level: "Advanced" },
+      { id: generateId(), name: "Python", level: "Advanced" },
+      { id: generateId(), name: "TypeScript", level: "Advanced" },
+      { id: generateId(), name: "Docker", level: "Intermediate" },
+      { id: generateId(), name: "Kubernetes", level: "Intermediate" },
+      { id: generateId(), name: "GraphQL", level: "Advanced" },
+      { id: generateId(), name: "MongoDB", level: "Advanced" },
+      { id: generateId(), name: "SQL", level: "Advanced" },
+      { id: generateId(), name: "AWS", level: "Advanced" },
+      { id: generateId(), name: "Machine Learning", level: "Intermediate" },
     ],
     achievements: [
       {
+        id: generateId(),
         title: "Google Cloud Certified Professional",
         year: "2022",
         description: "Certified as a Google Cloud Professional Developer.",
       },
       {
+        id: generateId(),
         title: "Best Student Project Award",
         year: "2018",
         description: "Won the best student project award at KIIT for an AI-powered healthcare solution.",
       },
       {
+        id: generateId(),
         title: "Published Research Paper",
         year: "2020",
         description: "Published a paper on distributed systems at the IEEE International Conference.",
       },
     ],
-  };
+  });
 
   // Get initials from name
   const getInitials = (name: string) => {
@@ -230,10 +255,11 @@ const Profile = () => {
     navigate(`/messages?contact=${id}`);
   };
   
-  const handleEdit = () => {
+  const handleProfileSave = (updatedProfile: any) => {
+    setProfile(updatedProfile);
     toast({
-      title: "Edit Profile",
-      description: "Profile editing functionality will be available soon.",
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated.",
     });
   };
 
@@ -251,7 +277,7 @@ const Profile = () => {
                   {isOwnProfile && (
                     <button 
                       className="absolute top-3 right-3 p-2 bg-black/20 rounded-full text-white/70 hover:text-white hover:bg-black/40 transition-colors"
-                      onClick={handleEdit}
+                      aria-label="Edit cover photo"
                     >
                       <Edit size={16} />
                     </button>
@@ -399,11 +425,22 @@ const Profile = () => {
               </GlassCard>
               
               <GlassCard animation="fade" delay={200} className="mt-6 p-6">
-                <h2 className="text-white font-medium mb-4">Skills</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-white font-medium">Skills</h2>
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                      onClick={() => document.getElementById('edit-skills-button')?.click()}
+                    >
+                      <Edit size={14} className="text-white/70" />
+                    </button>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {profile.skills.map((skill, index) => (
+                  {profile.skills.map((skill) => (
                     <div 
-                      key={index}
+                      key={skill.id}
                       className="px-3 py-1.5 rounded-full text-sm bg-white/5 text-white/80"
                     >
                       {skill.name}
@@ -428,15 +465,37 @@ const Profile = () => {
                   {activeTab === "about" && (
                     <div>
                       <div className="mb-6">
-                        <h2 className="text-white font-medium mb-3">About</h2>
+                        <div className="flex items-center justify-between mb-3">
+                          <h2 className="text-white font-medium">About</h2>
+                          {isOwnProfile && (
+                            <button
+                              type="button"
+                              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              onClick={() => document.getElementById('edit-about-button')?.click()}
+                            >
+                              <Edit size={14} className="text-white/70" />
+                            </button>
+                          )}
+                        </div>
                         <p className="text-white/70 whitespace-pre-line">{profile.bio}</p>
                       </div>
                       
                       <div>
-                        <h2 className="text-white font-medium mb-3">Current</h2>
+                        <div className="flex items-center justify-between mb-3">
+                          <h2 className="text-white font-medium">Current</h2>
+                          {isOwnProfile && (
+                            <button
+                              type="button"
+                              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                              onClick={() => document.getElementById('edit-experience-button')?.click()}
+                            >
+                              <Edit size={14} className="text-white/70" />
+                            </button>
+                          )}
+                        </div>
                         <div className="space-y-4">
-                          {profile.experience.filter(exp => exp.current).map((exp, index) => (
-                            <div key={index} className="flex">
+                          {profile.experience.filter(exp => exp.current).map((exp) => (
+                            <div key={exp.id} className="flex">
                               <div className="mr-4 mt-1">
                                 <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center">
                                   <Briefcase size={18} className="text-kiit-gold/70" />
@@ -461,8 +520,8 @@ const Profile = () => {
                             </div>
                           ))}
                           
-                          {profile.education.slice(0, 1).map((edu, index) => (
-                            <div key={index} className="flex">
+                          {profile.education.slice(0, 1).map((edu) => (
+                            <div key={edu.id} className="flex">
                               <div className="mr-4 mt-1">
                                 <div className="w-10 h-10 rounded bg-white/5 flex items-center justify-center">
                                   <GraduationCap size={18} className="text-kiit-gold/70" />
@@ -487,14 +546,20 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Experience</h2>
-                        <button className="p-2 text-white/60 hover:text-white rounded-full hover:bg-white/5 transition-colors">
-                          <Plus size={18} />
-                        </button>
+                        {isOwnProfile && (
+                          <button
+                            type="button"
+                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                            onClick={() => document.getElementById('edit-experience-button')?.click()}
+                          >
+                            <Edit size={14} className="text-white/70" />
+                          </button>
+                        )}
                       </div>
                       
                       <div className="space-y-8">
-                        {profile.experience.map((exp, index) => (
-                          <div key={index} className="relative pl-6 border-l border-white/10">
+                        {profile.experience.map((exp) => (
+                          <div key={exp.id} className="relative pl-6 border-l border-white/10">
                             <div className="absolute left-0 top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-white/10 border-2 border-kiit-darkgray"></div>
                             
                             <div className="mb-1">
@@ -527,14 +592,20 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Education</h2>
-                        <button className="p-2 text-white/60 hover:text-white rounded-full hover:bg-white/5 transition-colors">
-                          <Plus size={18} />
-                        </button>
+                        {isOwnProfile && (
+                          <button
+                            type="button"
+                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                            onClick={() => document.getElementById('edit-education-button')?.click()}
+                          >
+                            <Edit size={14} className="text-white/70" />
+                          </button>
+                        )}
                       </div>
                       
                       <div className="space-y-8">
-                        {profile.education.map((edu, index) => (
-                          <div key={index} className="relative pl-6 border-l border-white/10">
+                        {profile.education.map((edu) => (
+                          <div key={edu.id} className="relative pl-6 border-l border-white/10">
                             <div className="absolute left-0 top-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-white/10 border-2 border-kiit-darkgray"></div>
                             
                             <div className="mb-1">
@@ -560,9 +631,16 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Skills</h2>
-                        <button className="p-2 text-white/60 hover:text-white rounded-full hover:bg-white/5 transition-colors">
-                          <Plus size={18} />
-                        </button>
+                        {isOwnProfile && (
+                          <button 
+                            id="edit-skills-button"
+                            type="button"
+                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                            onClick={() => document.getElementById('edit-skills-button')?.click()}
+                          >
+                            <Edit size={14} className="text-white/70" />
+                          </button>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -581,9 +659,9 @@ const Profile = () => {
                             <div className="flex flex-wrap gap-2">
                               {profile.skills
                                 .filter((skill) => skill.level === category.level)
-                                .map((skill, index) => (
+                                .map((skill) => (
                                   <div
-                                    key={index}
+                                    key={skill.id}
                                     className="px-3 py-1.5 rounded-full text-sm bg-white/5 text-white/80"
                                   >
                                     {skill.name}
@@ -601,14 +679,20 @@ const Profile = () => {
                     <div>
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-white font-medium">Achievements</h2>
-                        <button className="p-2 text-white/60 hover:text-white rounded-full hover:bg-white/5 transition-colors">
-                          <Plus size={18} />
-                        </button>
+                        {isOwnProfile && (
+                          <button
+                            type="button"
+                            className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                            onClick={() => document.getElementById('edit-achievements-button')?.click()}
+                          >
+                            <Edit size={14} className="text-white/70" />
+                          </button>
+                        )}
                       </div>
                       
                       <div className="space-y-6">
-                        {profile.achievements.map((achievement, index) => (
-                          <div key={index} className="flex">
+                        {profile.achievements.map((achievement) => (
+                          <div key={achievement.id} className="flex">
                             <div className="mr-4 mt-1">
                               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
                                 <Award size={18} className="text-kiit-gold" />
@@ -634,6 +718,22 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Hidden edit buttons for the ProfileEditor to access */}
+      <div className="hidden">
+        <button id="edit-about-button">Edit About</button>
+        <button id="edit-contact-button">Edit Contact</button>
+        <button id="edit-social-button">Edit Social</button>
+        <button id="edit-education-button">Edit Education</button>
+        <button id="edit-experience-button">Edit Experience</button>
+        <button id="edit-skills-button">Edit Skills</button>
+        <button id="edit-achievements-button">Edit Achievements</button>
+      </div>
+      
+      {/* Profile Editor Component - Only shown when it's the user's own profile */}
+      {isOwnProfile && (
+        <ProfileEditor profileData={profile} onSave={handleProfileSave} />
+      )}
       
       <Footer />
     </div>

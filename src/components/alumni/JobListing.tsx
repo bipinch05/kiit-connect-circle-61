@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Building, MapPin, Clock, Briefcase, ExternalLink } from "lucide-react";
+import { Building, MapPin, Clock, Briefcase, ExternalLink, Bookmark, CheckCircle } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
 import AnimatedButton from "../ui/AnimatedButton";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 export interface JobData {
   id: string;
@@ -30,6 +31,8 @@ interface JobListingProps {
   className?: string;
   animation?: "fade" | "scale" | "slide" | "none";
   delay?: number;
+  onSaveToggle?: (jobId: string, isSaved: boolean) => void;
+  onApply?: (jobId: string) => void;
 }
 
 const JobListing: React.FC<JobListingProps> = ({
@@ -37,7 +40,12 @@ const JobListing: React.FC<JobListingProps> = ({
   className,
   animation = "none",
   delay = 0,
+  onSaveToggle,
+  onApply,
 }) => {
+  const [saved, setSaved] = useState(job.saved || false);
+  const [applied, setApplied] = useState(job.applied || false);
+
   const {
     id,
     title,
@@ -52,8 +60,6 @@ const JobListing: React.FC<JobListingProps> = ({
     description,
     skills,
     postedByName,
-    applied,
-    saved,
   } = job;
 
   // Format date
@@ -103,6 +109,33 @@ const JobListing: React.FC<JobListingProps> = ({
     const diffTime = Math.abs(now.getTime() - new Date(postDate).getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3;
+  };
+
+  const handleSaveToggle = () => {
+    const newSavedState = !saved;
+    setSaved(newSavedState);
+    if (onSaveToggle) {
+      onSaveToggle(id, newSavedState);
+    }
+    
+    toast({
+      title: newSavedState ? "Job Saved" : "Job Removed",
+      description: newSavedState 
+        ? `${title} at ${company} has been saved to your list.` 
+        : `${title} at ${company} has been removed from your saved list.`,
+    });
+  };
+
+  const handleApply = () => {
+    setApplied(true);
+    if (onApply) {
+      onApply(id);
+    }
+    
+    toast({
+      title: "Application Submitted",
+      description: `Your application for ${title} at ${company} has been submitted.`,
+    });
   };
 
   return (
@@ -209,14 +242,24 @@ const JobListing: React.FC<JobListingProps> = ({
                 variant="primary" 
                 size="sm" 
                 className="flex-1"
+                onClick={handleApply}
               >
-                Apply Now
+                {applied ? (
+                  <>
+                    <CheckCircle size={14} className="mr-2" />
+                    Applied
+                  </>
+                ) : (
+                  "Apply Now"
+                )}
               </AnimatedButton>
               <AnimatedButton 
                 variant={saved ? "secondary" : "outline"}
                 size="sm" 
                 className="flex-1"
+                onClick={handleSaveToggle}
               >
+                <Bookmark size={14} className={cn("mr-2", saved && "fill-current")} />
                 {saved ? "Saved" : "Save Job"}
               </AnimatedButton>
             </div>
@@ -227,6 +270,7 @@ const JobListing: React.FC<JobListingProps> = ({
               className="w-full"
               disabled
             >
+              <CheckCircle size={14} className="mr-2" />
               Applied
             </AnimatedButton>
           )}

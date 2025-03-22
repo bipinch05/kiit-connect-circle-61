@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { MapPin, Briefcase, Calendar, ArrowUpRight, MessageSquare } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
 import AnimatedButton from "../ui/AnimatedButton";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 export interface ProfileData {
   id: string;

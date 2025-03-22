@@ -10,6 +10,7 @@ import Alumni from "./pages/Alumni";
 import Messages from "./pages/Messages";
 import Events from "./pages/Events";
 import Jobs from "./pages/Jobs";
+import Communities from "./pages/Communities";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/messages" element={<Messages />} />
           <Route path="/events" element={<Events />} />
           <Route path="/jobs" element={<Jobs />} />
+          <Route path="/communities" element={<Communities />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
