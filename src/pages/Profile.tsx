@@ -19,7 +19,6 @@ interface ProfileTabsProps {
   onTabChange: (tab: string) => void;
 }
 
-// Keep the ProfileTabs component
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
     { id: "about", label: "About" },
@@ -57,20 +56,15 @@ const Profile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // Check if it's the user's own profile
   const isOwnProfile = !id || id === "me";
 
-  // Create a ref to hold the ProfileEditor component
   const profileEditorRef = React.useRef<ProfileEditorRef>(null);
 
-  // Generate ID for each item
   const generateId = () => {
     return Math.random().toString(36).substr(2, 9);
   };
 
   useEffect(() => {
-    // This would be an API call in a real app
-    // Here we'll simulate connections for the predefined alumni
     if (id === "1" || id === "5") {
       setIsConnected(true);
       setIsPending(false);
@@ -83,7 +77,6 @@ const Profile = () => {
     }
   }, [id]);
   
-  // State for profile data
   const [profile, setProfile] = useState<ProfileData>({
     name: id === "1" ? "Priya Sharma" : 
           id === "2" ? "Rahul Verma" :
@@ -91,7 +84,6 @@ const Profile = () => {
           id === "4" ? "Vikram Singh" :
           id === "5" ? "Neha Gupta" :
           id === "6" ? "Arjun Malhotra" : "Your Profile",
-    avatar: null, // Set to image URL if available
     headline: id === "1" ? "Software Engineer at Google" :
               id === "2" ? "Product Manager at Microsoft" :
               id === "3" ? "UI/UX Designer at Adobe" :
@@ -200,9 +192,9 @@ const Profile = () => {
         description: "Published a paper on distributed systems at the IEEE International Conference.",
       },
     ],
+    avatar: null,
   });
 
-  // Get initials from name
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -233,7 +225,6 @@ const Profile = () => {
     });
   };
 
-  // Edit button component to keep UI consistent
   const EditButton = ({ onClick }: { onClick: () => void }) => (
     <button
       type="button"
@@ -251,15 +242,15 @@ const Profile = () => {
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left sidebar */}
             <div className="lg:col-span-1">
               <GlassCard 
                 animation="fade" 
                 delay={100} 
                 className="overflow-hidden"
-                titleRight={isOwnProfile && (
+                title="Profile"
+                titleRight={isOwnProfile ? (
                   <EditButton onClick={() => profileEditorRef.current?.handleEdit("about")} />
-                )}
+                ) : undefined}
               >
                 <div className="relative h-32 bg-gradient-to-r from-kiit-gold/20 to-kiit-gold/5">
                   {isOwnProfile && (
@@ -355,6 +346,12 @@ const Profile = () => {
                   </div>
                   
                   <div className="mt-6 pt-6 border-t border-white/10">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-white font-medium">Social Links</h3>
+                      {isOwnProfile && (
+                        <EditButton onClick={() => profileEditorRef.current?.handleEdit("social")} />
+                      )}
+                    </div>
                     <div className="flex justify-center space-x-3">
                       {profile.social.linkedin && (
                         <a 
@@ -417,9 +414,9 @@ const Profile = () => {
                 delay={200} 
                 className="mt-6" 
                 title="Skills"
-                titleRight={isOwnProfile && (
+                titleRight={isOwnProfile ? (
                   <EditButton onClick={() => profileEditorRef.current?.handleEdit("skills")} />
-                )}
+                ) : undefined}
               >
                 <div className="px-6 pb-6">
                   <div className="flex flex-wrap gap-2">
@@ -441,13 +438,11 @@ const Profile = () => {
               </GlassCard>
             </div>
             
-            {/* Main content */}
             <div className="lg:col-span-2">
               <GlassCard animation="fade" delay={150} className="overflow-hidden">
                 <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
                 
                 <div className="p-6">
-                  {/* About tab */}
                   {activeTab === "about" && (
                     <div>
                       <div className="mb-6">
@@ -515,7 +510,6 @@ const Profile = () => {
                     </div>
                   )}
                   
-                  {/* Experience tab */}
                   {activeTab === "experience" && (
                     <div>
                       <div className="flex justify-between items-center mb-6">
@@ -555,7 +549,6 @@ const Profile = () => {
                     </div>
                   )}
                   
-                  {/* Education tab */}
                   {activeTab === "education" && (
                     <div>
                       <div className="flex justify-between items-center mb-6">
@@ -588,7 +581,6 @@ const Profile = () => {
                     </div>
                   )}
                   
-                  {/* Skills tab */}
                   {activeTab === "skills" && (
                     <div>
                       <div className="flex justify-between items-center mb-6">
@@ -629,7 +621,6 @@ const Profile = () => {
                     </div>
                   )}
                   
-                  {/* Achievements tab */}
                   {activeTab === "achievements" && (
                     <div>
                       <div className="flex justify-between items-center mb-6">
@@ -668,7 +659,6 @@ const Profile = () => {
         </div>
       </div>
       
-      {/* Profile Editor Component - Only shown when it's the user's own profile */}
       {isOwnProfile && (
         <ProfileEditor 
           ref={profileEditorRef}
