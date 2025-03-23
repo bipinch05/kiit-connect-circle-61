@@ -24,9 +24,8 @@ export const AdminMessages = () => {
   ) : [];
 
   // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const formatDate = (date: Date) => {
+    return new Date(date).toISOString().split('T')[0]; // YYYY-MM-DD format
   };
 
   if (isLoading) return <div>Loading messages...</div>;

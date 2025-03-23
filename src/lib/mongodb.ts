@@ -1,8 +1,8 @@
 
 import mongoose from 'mongoose';
 
-// Use Vite's import.meta.env instead of process.env
-const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || 'mongodb://localhost:27017/kiit_alumni';
+// Use the provided MongoDB connection string
+const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || 'mongodb+srv://connectkiit:Hijecked98@cluster0.ntag4.mongodb.net/kiitconnect';
 
 let cached = global as any;
 if (!cached.mongoose) {
