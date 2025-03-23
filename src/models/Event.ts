@@ -32,4 +32,8 @@ const EventSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Event || mongoose.model('Event', EventSchema);
+// Check models object exists (for browser compatibility)
+const modelExists = mongoose.models && 'Event' in mongoose.models;
+const Event = modelExists ? mongoose.models.Event : mongoose.model('Event', EventSchema);
+
+export default Event;

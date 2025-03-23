@@ -22,4 +22,8 @@ const CommunitySchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Community || mongoose.model('Community', CommunitySchema);
+// Check models object exists (for browser compatibility)
+const modelExists = mongoose.models && 'Community' in mongoose.models;
+const Community = modelExists ? mongoose.models.Community : mongoose.model('Community', CommunitySchema);
+
+export default Community;
