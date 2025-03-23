@@ -66,7 +66,7 @@ export const AdminMessages = () => {
           <TableBody>
             {filteredMessages.length > 0 ? (
               filteredMessages.map((message) => (
-                <TableRow key={message._id}>
+                <TableRow key={message._id as string}>
                   <TableCell className="font-medium">{message.senderName}</TableCell>
                   <TableCell>{message.recipient}</TableCell>
                   <TableCell>{message.subject}</TableCell>

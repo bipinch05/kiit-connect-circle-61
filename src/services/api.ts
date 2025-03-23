@@ -4,9 +4,10 @@ import User from '@/models/User';
 import Event from '@/models/Event';
 import Community from '@/models/Community';
 import Message from '@/models/Message';
+import { User as UserType, Event as EventType, Community as CommunityType, Message as MessageType } from '@/types';
 
 // User related API functions
-export const fetchUsers = async (filters = {}) => {
+export const fetchUsers = async (filters = {}): Promise<UserType[]> => {
   try {
     await connectToDatabase();
     return await User.find(filters).lean();
@@ -16,7 +17,7 @@ export const fetchUsers = async (filters = {}) => {
   }
 };
 
-export const fetchUserById = async (id: string) => {
+export const fetchUserById = async (id: string): Promise<UserType | null> => {
   try {
     await connectToDatabase();
     return await User.findById(id).lean();
@@ -27,7 +28,7 @@ export const fetchUserById = async (id: string) => {
 };
 
 // Event related API functions
-export const fetchEvents = async (filters = {}) => {
+export const fetchEvents = async (filters = {}): Promise<EventType[]> => {
   try {
     await connectToDatabase();
     return await Event.find(filters).lean();
@@ -37,7 +38,7 @@ export const fetchEvents = async (filters = {}) => {
   }
 };
 
-export const fetchEventById = async (id: string) => {
+export const fetchEventById = async (id: string): Promise<EventType | null> => {
   try {
     await connectToDatabase();
     return await Event.findById(id).lean();
@@ -48,7 +49,7 @@ export const fetchEventById = async (id: string) => {
 };
 
 // Community related API functions
-export const fetchCommunities = async (filters = {}) => {
+export const fetchCommunities = async (filters = {}): Promise<CommunityType[]> => {
   try {
     await connectToDatabase();
     return await Community.find(filters).lean();
@@ -58,7 +59,7 @@ export const fetchCommunities = async (filters = {}) => {
   }
 };
 
-export const fetchCommunityById = async (id: string) => {
+export const fetchCommunityById = async (id: string): Promise<CommunityType | null> => {
   try {
     await connectToDatabase();
     return await Community.findById(id).lean();
@@ -69,7 +70,7 @@ export const fetchCommunityById = async (id: string) => {
 };
 
 // Message related API functions
-export const fetchMessages = async (filters = {}) => {
+export const fetchMessages = async (filters = {}): Promise<MessageType[]> => {
   try {
     await connectToDatabase();
     return await Message.find(filters).lean();
@@ -79,7 +80,7 @@ export const fetchMessages = async (filters = {}) => {
   }
 };
 
-export const fetchMessageById = async (id: string) => {
+export const fetchMessageById = async (id: string): Promise<MessageType | null> => {
   try {
     await connectToDatabase();
     return await Message.findById(id).lean();
