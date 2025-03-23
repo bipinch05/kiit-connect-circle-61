@@ -4,35 +4,36 @@ import mongoose from 'mongoose';
 // Use the provided MongoDB connection string
 const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || 'mongodb+srv://connectkiit:Hijecked98@cluster0.ntag4.mongodb.net/kiitconnect';
 
-let cached = global as any;
-if (!cached.mongoose) {
-  cached.mongoose = { conn: null, promise: null };
-}
+// Create cached connection variable
+let cached = {
+  conn: null as mongoose.Connection | null,
+  promise: null as Promise<mongoose.Connection> | null
+};
 
 export async function connectToDatabase() {
-  if (cached.mongoose.conn) {
-    return cached.mongoose.conn;
+  if (cached.conn) {
+    return cached.conn;
   }
 
-  if (!cached.mongoose.promise) {
+  if (!cached.promise) {
     const opts = {
       bufferCommands: false,
     };
 
     mongoose.set('strictQuery', false);
-    cached.mongoose.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('Connected to MongoDB');
-      return mongoose;
+      return mongoose.connection;
     });
   }
 
   try {
-    cached.mongoose.conn = await cached.mongoose.promise;
+    cached.conn = await cached.promise;
   } catch (e) {
-    cached.mongoose.promise = null;
+    cached.promise = null;
     console.error('Error connecting to MongoDB:', e);
     throw e;
   }
 
-  return cached.mongoose.conn;
+  return cached.conn;
 }
