@@ -10,6 +10,11 @@ let cached = {
   promise: null as Promise<mongoose.Connection> | null
 };
 
+// Polyfill global for client-side
+if (typeof window !== 'undefined' && !window.hasOwnProperty('global')) {
+  (window as any).global = window;
+}
+
 export async function connectToDatabase() {
   if (cached.conn) {
     return cached.conn;
