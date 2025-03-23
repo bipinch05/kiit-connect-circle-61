@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, Filter, CalendarDays, MapPin, Plus } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -7,105 +6,20 @@ import AnimatedButton from "@/components/ui/AnimatedButton";
 import EventCard, { EventData } from "@/components/alumni/EventCard";
 import GlassCard from "@/components/ui/GlassCard";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchEvents } from "@/services/api";
 
 const Events = () => {
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "my-events">("upcoming");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   
-  // Mock data for events
-  const events: EventData[] = [
-    {
-      id: "1",
-      title: "AI in Healthcare: KIIT Alumni Showcase",
-      description: "Join us for an exciting showcase of how KIIT alumni are revolutionizing healthcare with artificial intelligence. Learn about cutting-edge projects, career opportunities, and network with professionals in the field.",
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-      startTime: "2:00 PM",
-      endTime: "5:00 PM",
-      location: "Virtual",
-      isOnline: true,
-      organizer: "KIIT AI Club",
-      attendeeCount: 78,
-      maxAttendees: 100,
-      rsvp: null,
-    },
-    {
-      id: "2",
-      title: "KIIT Annual Alumni Meetup 2023",
-      description: "The annual gathering of KIIT graduates across all batches. An opportunity to reconnect with old friends, make new connections, and celebrate the achievements of our alumni community.",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-      startTime: "6:00 PM",
-      endTime: "10:00 PM",
-      location: "KIIT Campus, Bhubaneswar",
-      isOnline: false,
-      organizer: "KIIT Alumni Association",
-      attendeeCount: 156,
-      rsvp: "going",
-    },
-    {
-      id: "3",
-      title: "Tech Career Panel: From KIIT to Silicon Valley",
-      description: "A panel discussion featuring KIIT alumni who have built successful careers in top tech companies in Silicon Valley. Learn about their journey, challenges, and tips for aspiring technologists.",
-      image: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
-      startTime: "9:00 AM",
-      endTime: "11:00 AM",
-      location: "Virtual",
-      isOnline: true,
-      organizer: "KIIT Career Services",
-      attendeeCount: 210,
-      rsvp: "interested",
-    },
-    {
-      id: "4",
-      title: "Entrepreneurship Workshop for KIIT Students",
-      description: "A hands-on workshop led by successful KIIT alumni entrepreneurs. Learn about startup fundamentals, fundraising, and how to turn your idea into a viable business.",
-      image: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      startTime: "10:00 AM",
-      endTime: "4:00 PM",
-      location: "KIIT Business School, Bhubaneswar",
-      isOnline: false,
-      organizer: "KIIT E-Cell",
-      attendeeCount: 45,
-      maxAttendees: 50,
-      rsvp: null,
-    },
-    {
-      id: "5",
-      title: "Machine Learning Masterclass by Google Engineers",
-      description: "An intensive workshop on advanced machine learning techniques taught by KIIT alumni working at Google. Bring your laptop for hands-on exercises.",
-      image: "https://images.unsplash.com/photo-1544654817-3f64314dcef7?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-      startTime: "9:00 AM",
-      endTime: "5:00 PM",
-      location: "Virtual",
-      isOnline: true,
-      organizer: "KIIT Tech Society",
-      attendeeCount: 120,
-      maxAttendees: 150,
-      rsvp: "going",
-    },
-    {
-      id: "6",
-      title: "KIIT Alumni Networking Night: San Francisco",
-      description: "Join fellow KIIT alumni in the Bay Area for an evening of networking, food, and drinks. Great opportunity to strengthen your professional network.",
-      image: "https://images.unsplash.com/photo-1571624436279-b272aff752b5?q=80&w=800&auto=format&fit=crop",
-      date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-      startTime: "7:00 PM",
-      endTime: "10:00 PM",
-      location: "San Francisco, CA",
-      isOnline: false,
-      organizer: "KIIT Alumni Association - US Chapter",
-      attendeeCount: 35,
-      rsvp: "going",
-    },
-  ];
+  const { data: events, isLoading, error } = useQuery({
+    queryKey: ['events'],
+    queryFn: fetchEvents,
+  });
 
-  // Filter events based on activeTab
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events ? events.filter(event => {
     const today = new Date();
     const eventDate = new Date(event.date);
     
@@ -113,22 +27,44 @@ const Events = () => {
       return true;
     } else if (activeTab === "past" && eventDate < today) {
       return true;
-    } else if (activeTab === "my-events" && event.rsvp) {
+    } else if (activeTab === "my-events" && event.attendees?.includes("current-user-id")) {
       return true;
     }
     
     return false;
-  });
+  }) : [];
 
-  // Search functionality
-  const searchedEvents = searchQuery
+  const searchedEvents = searchQuery && filteredEvents
     ? filteredEvents.filter(event => 
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.organizer.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : filteredEvents;
+
+  const formattedEvents: EventData[] = searchedEvents ? searchedEvents.map(event => ({
+    id: event._id,
+    title: event.title,
+    description: event.description || "",
+    image: event.image,
+    date: new Date(event.date),
+    startTime: event.startTime || "TBD",
+    endTime: event.endTime || "TBD",
+    location: event.location,
+    isOnline: event.isOnline || false,
+    organizer: event.organizer,
+    attendeeCount: event.attendeeCount || 0,
+    maxAttendees: event.maxAttendees,
+    rsvp: null,
+  })) : [];
+
+  const popularEvents = events 
+    ? events
+        .filter(event => new Date(event.date) >= new Date())
+        .sort((a, b) => (b.attendeeCount || 0) - (a.attendeeCount || 0))
+        .slice(0, 3)
+    : [];
 
   return (
     <div className="min-h-screen bg-kiit-black">
@@ -285,75 +221,79 @@ const Events = () => {
                   <h2 className="text-lg font-medium text-white mb-4">Popular Events</h2>
                   
                   <div className="space-y-4">
-                    {events
-                      .filter(event => new Date(event.date) >= new Date())
-                      .sort((a, b) => b.attendeeCount - a.attendeeCount)
-                      .slice(0, 3)
-                      .map(event => (
-                        <div key={event.id} className="flex gap-3">
-                          <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
-                            {event.image ? (
-                              <img
-                                src={event.image}
-                                alt={event.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                                <CalendarDays size={20} className="text-kiit-gold/70" />
-                              </div>
-                            )}
+                    {popularEvents.map(event => (
+                      <div key={event._id} className="flex gap-3">
+                        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                          {event.image ? (
+                            <img
+                              src={event.image}
+                              alt={event.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                              <CalendarDays size={20} className="text-kiit-gold/70" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-white leading-tight">
+                            {event.title}
+                          </h3>
+                          <div className="flex items-center text-white/50 text-xs mt-1">
+                            <CalendarDays size={10} className="mr-1" />
+                            {new Date(event.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
                           </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-white leading-tight">
-                              {event.title}
-                            </h3>
-                            <div className="flex items-center text-white/50 text-xs mt-1">
-                              <CalendarDays size={10} className="mr-1" />
-                              {new Date(event.date).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                              })}
-                            </div>
-                            <div className="flex items-center text-white/50 text-xs mt-0.5">
-                              <MapPin size={10} className="mr-1" />
-                              {event.isOnline ? "Virtual" : event.location}
-                            </div>
+                          <div className="flex items-center text-white/50 text-xs mt-0.5">
+                            <MapPin size={10} className="mr-1" />
+                            {event.isOnline ? "Virtual" : event.location}
                           </div>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </GlassCard>
             </div>
             
             <div className="lg:col-span-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {searchedEvents.length > 0 ? (
-                  searchedEvents.map(event => (
+              {isLoading ? (
+                <div className="text-center py-12">
+                  <p className="text-white/70">Loading events...</p>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <p className="text-red-400">Error loading events</p>
+                </div>
+              ) : formattedEvents.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {formattedEvents.map(event => (
                     <EventCard key={event.id} event={event} animation="fade" />
-                  ))
-                ) : (
-                  <div className="col-span-full flex flex-col items-center justify-center py-16">
-                    <CalendarDays size={48} className="text-white/20 mb-4" />
-                    <h3 className="text-xl font-medium text-white mb-2">No events found</h3>
-                    <p className="text-white/60 text-center max-w-md">
-                      {searchQuery 
-                        ? `No events matching "${searchQuery}" were found. Try a different search term.` 
-                        : "There are no events in this category yet."}
-                    </p>
-                    {activeTab !== "upcoming" && (
-                      <AnimatedButton 
-                        variant="outline" 
-                        className="mt-4"
-                        onClick={() => setActiveTab("upcoming")}
-                      >
-                        View Upcoming Events
-                      </AnimatedButton>
-                    )}
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="col-span-full flex flex-col items-center justify-center py-16">
+                  <CalendarDays size={48} className="text-white/20 mb-4" />
+                  <h3 className="text-xl font-medium text-white mb-2">No events found</h3>
+                  <p className="text-white/60 text-center max-w-md">
+                    {searchQuery 
+                      ? `No events matching "${searchQuery}" were found. Try a different search term.` 
+                      : "There are no events in this category yet."}
+                  </p>
+                  {activeTab !== "upcoming" && (
+                    <AnimatedButton 
+                      variant="outline" 
+                      className="mt-4"
+                      onClick={() => setActiveTab("upcoming")}
+                    >
+                      View Upcoming Events
+                    </AnimatedButton>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

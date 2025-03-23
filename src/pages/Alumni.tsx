@@ -7,6 +7,8 @@ import ProfileCard from "@/components/alumni/ProfileCard";
 import SearchFilters from "@/components/alumni/SearchFilters";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUsers } from "@/services/api";
 
 const Alumni = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,81 +17,11 @@ const Alumni = () => {
   const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
   const navigate = useNavigate();
 
-  // Mock alumni data
-  const alumniData = [
-    {
-      id: "1",
-      name: "Priya Sharma",
-      avatar: undefined,
-      role: "Software Engineer",
-      company: "Google",
-      location: "San Francisco, CA",
-      graduationYear: 2018,
-      department: "Computer Science",
-      skills: ["JavaScript", "React", "Node.js", "Machine Learning"],
-      connection: "connected" as "connected",
-    },
-    {
-      id: "2",
-      name: "Rahul Verma",
-      avatar: undefined,
-      role: "Product Manager",
-      company: "Microsoft",
-      location: "Seattle, WA",
-      graduationYear: 2015,
-      department: "Computer Science",
-      skills: ["Product Strategy", "UX Design", "Agile", "Data Analysis"],
-      connection: "none" as "none",
-    },
-    {
-      id: "3",
-      name: "Ananya Patel",
-      avatar: undefined,
-      role: "UI/UX Designer",
-      company: "Adobe",
-      location: "Bangalore, India",
-      graduationYear: 2020,
-      department: "Design",
-      skills: ["UI Design", "Figma", "User Research", "Prototyping"],
-      connection: "pending" as "pending",
-    },
-    {
-      id: "4",
-      name: "Vikram Singh",
-      avatar: undefined,
-      role: "Data Scientist",
-      company: "Amazon",
-      location: "New York, NY",
-      graduationYear: 2019,
-      department: "Computer Science",
-      skills: ["Python", "Machine Learning", "Data Analysis", "AWS"],
-      connection: "none" as "none",
-    },
-    {
-      id: "5",
-      name: "Neha Gupta",
-      avatar: undefined,
-      role: "Mechanical Engineer",
-      company: "Tesla",
-      location: "Austin, TX",
-      graduationYear: 2016,
-      department: "Mechanical Engineering",
-      skills: ["CAD Design", "Thermal Systems", "Project Management"],
-      connection: "connected" as "connected",
-    },
-    {
-      id: "6",
-      name: "Arjun Malhotra",
-      avatar: undefined,
-      role: "Investment Banker",
-      company: "Goldman Sachs",
-      location: "Mumbai, India",
-      graduationYear: 2017,
-      department: "Business Administration",
-      skills: ["Financial Analysis", "Investment Strategy", "Market Research"],
-      connection: "none" as "none",
-    },
-  ];
+  // Fetch alumni data from MongoDB
+  const { data: alumniData, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => fetchUsers({ isAdmin: false }),
+  });
 
   // Handle search query change
   const handleSearch = (query: string) => {
@@ -131,11 +63,6 @@ const Alumni = () => {
       title: "Connection Request Sent",
       description: `Your connection request to the alumni has been sent.`,
     });
-    
-    // Update the alumni data to reflect pending status
-    const updatedAlumniData = alumniData.map(alumni => 
-      alumni.id === id ? { ...alumni, connection: "pending" as "pending" } : alumni
-    );
   };
 
   // Handle message button click
@@ -150,13 +77,13 @@ const Alumni = () => {
   };
 
   // Filter alumni based on search query, department, and year
-  const filteredAlumni = alumniData.filter((alumni) => {
+  const filteredAlumni = alumniData ? alumniData.filter((alumni) => {
     const matchesSearch =
       !searchQuery ||
       alumni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      alumni.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      alumni.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (alumni.company && alumni.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      alumni.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
+      alumni.skills?.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesDepartment =
       !selectedDepartment ||
@@ -166,7 +93,7 @@ const Alumni = () => {
     const matchesYear =
       !selectedYear ||
       selectedYear === "All Years" ||
-      alumni.graduationYear.toString() === selectedYear;
+      alumni.graduationYear?.toString() === selectedYear;
 
     // Additional filters from SearchFilters component
     const matchesIndustry = !activeFilters.industry || activeFilters.industry.length === 0 || 
@@ -181,7 +108,7 @@ const Alumni = () => {
       ));
 
     return matchesSearch && matchesDepartment && matchesYear && matchesIndustry && matchesLocation;
-  });
+  }) : [];
 
   return (
     <div className="min-h-screen bg-kiit-black">
@@ -206,17 +133,36 @@ const Alumni = () => {
             />
           </GlassCard>
 
-          {filteredAlumni.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-white/70">Loading alumni data...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-400">Error loading alumni data</p>
+            </div>
+          ) : filteredAlumni.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAlumni.map((alumni, index) => (
                 <ProfileCard
-                  key={alumni.id}
-                  profile={alumni}
+                  key={alumni._id}
+                  profile={{
+                    id: alumni._id,
+                    name: alumni.name,
+                    avatar: alumni.avatar,
+                    role: alumni.role || "",
+                    company: alumni.company || "",
+                    location: alumni.location || "",
+                    graduationYear: alumni.graduationYear || 0,
+                    department: alumni.department || "",
+                    skills: alumni.skills || [],
+                    connection: "none" as "none"
+                  }}
                   animation="fade"
                   delay={index * 100}
-                  onConnect={() => handleConnect(alumni.id)}
-                  onMessage={() => handleMessage(alumni.id)}
-                  onProfileClick={() => handleProfileClick(alumni.id)}
+                  onConnect={() => handleConnect(alumni._id)}
+                  onMessage={() => handleMessage(alumni._id)}
+                  onProfileClick={() => handleProfileClick(alumni._id)}
                 />
               ))}
             </div>

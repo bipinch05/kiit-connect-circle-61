@@ -3,15 +3,66 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, Briefcase, MessageSquare } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUsers, fetchEvents, fetchMessages } from "@/services/api";
 
 export const AdminDashboard = () => {
-  // Mock data for the dashboard
+  // Fetch data using React Query
+  const { data: users } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => fetchUsers(),
+  });
+
+  const { data: events } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => fetchEvents(),
+  });
+
+  const { data: messages } = useQuery({
+    queryKey: ['messages'],
+    queryFn: () => fetchMessages(),
+  });
+
+  // Calculate stats based on fetched data
   const stats = [
-    { title: "Total Users", value: "1,254", icon: Users, change: "+12%" },
-    { title: "Active Events", value: "23", icon: Calendar, change: "+5%" },
-    { title: "Open Jobs", value: "48", icon: Briefcase, change: "+18%" },
-    { title: "New Messages", value: "156", icon: MessageSquare, change: "+24%" },
+    { 
+      title: "Total Users", 
+      value: users?.length || "0", 
+      icon: Users, 
+      change: "+12%" 
+    },
+    { 
+      title: "Active Events", 
+      value: events?.filter(e => new Date(e.date) >= new Date()).length || "0", 
+      icon: Calendar, 
+      change: "+5%" 
+    },
+    { 
+      title: "Open Jobs", 
+      value: "48", 
+      icon: Briefcase, 
+      change: "+18%" 
+    },
+    { 
+      title: "New Messages", 
+      value: messages?.filter(m => m.status === "Unread").length || "0", 
+      icon: MessageSquare, 
+      change: "+24%" 
+    },
   ];
+
+  // Recent activity based on database data
+  const recentActivity = [
+    ...users ? users.slice(0, 2).map(user => ({
+      text: `${user.name} joined the alumni network`,
+      time: new Date(user.createdAt).toLocaleDateString(),
+    })) : [],
+    ...events ? events.slice(0, 2).map(event => ({
+      text: `New event created: ${event.title}`,
+      time: new Date(event.createdAt).toLocaleDateString(),
+    })) : [],
+  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+   .slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -36,22 +87,18 @@ export const AdminDashboard = () => {
         <GlassCard title="Recent Activity" className="h-[300px]">
           <CardContent>
             <div className="space-y-4">
-              <div className="border-b pb-2">
-                <p className="text-sm">John Doe joined the alumni network</p>
-                <p className="text-xs text-muted-foreground">2 hours ago</p>
-              </div>
-              <div className="border-b pb-2">
-                <p className="text-sm">New job posted: Software Engineer at Google</p>
-                <p className="text-xs text-muted-foreground">5 hours ago</p>
-              </div>
-              <div className="border-b pb-2">
-                <p className="text-sm">Career networking event created for June 15</p>
-                <p className="text-xs text-muted-foreground">Yesterday</p>
-              </div>
-              <div>
-                <p className="text-sm">New community: AI Enthusiasts</p>
-                <p className="text-xs text-muted-foreground">2 days ago</p>
-              </div>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <div key={index} className="border-b pb-2">
+                    <p className="text-sm">{activity.text}</p>
+                    <p className="text-xs text-muted-foreground">{activity.time}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No recent activity found</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </GlassCard>
