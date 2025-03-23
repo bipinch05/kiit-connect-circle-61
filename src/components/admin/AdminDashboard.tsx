@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, Briefcase, MessageSquare } from "lucide-react";
-import { GlassCard } from "@/components/ui/GlassCard";
+import GlassCard from "@/components/ui/GlassCard";
 
 export const AdminDashboard = () => {
   // Mock data for the dashboard
