@@ -25,4 +25,7 @@ const MessageSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.models.Message || mongoose.model('Message', MessageSchema);
+// Use a safer approach to check if the model exists before creating it
+const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
+
+export default Message;

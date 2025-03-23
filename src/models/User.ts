@@ -29,5 +29,7 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// Check if the model exists before defining it
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+// Use a safer approach to check if the model exists before creating it
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+
+export default User;
