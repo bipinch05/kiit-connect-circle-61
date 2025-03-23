@@ -8,6 +8,7 @@ import GlassCard from "@/components/ui/GlassCard";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchEvents } from "@/services/api";
+import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 
 const Events = () => {
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "my-events">("upcoming");
@@ -38,8 +39,8 @@ const Events = () => {
     ? filteredEvents.filter(event => 
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.organizer.toLowerCase().includes(searchQuery.toLowerCase())
+        (event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (event.organizer && event.organizer.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : filteredEvents;
 
@@ -75,10 +76,7 @@ const Events = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h1 className="text-3xl font-display font-bold text-white">Events & Meetups</h1>
             
-            <AnimatedButton variant="primary">
-              <Plus size={16} className="mr-2" />
-              Create Event
-            </AnimatedButton>
+            <CreateEventDialog />
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">

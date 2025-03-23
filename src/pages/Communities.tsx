@@ -8,6 +8,7 @@ import { Users, Plus, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCommunities } from "@/services/api";
 import { toast } from "@/components/ui/use-toast";
+import { CreateCommunityDialog } from "@/components/communities/CreateCommunityDialog";
 
 const Communities = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,7 +30,7 @@ const Communities = () => {
   const filteredCommunities = searchQuery && communities 
     ? communities.filter(community => 
         community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        community.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (community.description && community.description.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : communities;
 
@@ -42,10 +43,7 @@ const Communities = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h1 className="text-3xl font-display font-bold text-white">Communities</h1>
             
-            <AnimatedButton variant="primary">
-              <Plus size={16} className="mr-2" />
-              Create Community
-            </AnimatedButton>
+            <CreateCommunityDialog />
           </div>
           
           <div className="mb-8 max-w-md">

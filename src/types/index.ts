@@ -56,3 +56,22 @@ export interface Message {
   date: Date;
   status: 'Read' | 'Unread';
 }
+
+// Job type definition
+export interface Job {
+  _id: string;
+  title: string;
+  company: string;
+  location?: string;
+  description?: string;
+  type?: string;
+  salary?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  postedBy?: string;
+  postedDate: Date;
+  applications: number;
+  status: 'Active' | 'Closed' | 'Pending';
+  applyUrl?: string;
+  contactEmail?: string;
+}

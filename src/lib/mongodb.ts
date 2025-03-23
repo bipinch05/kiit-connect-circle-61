@@ -25,6 +25,7 @@ export async function connectToDatabase() {
       bufferCommands: false,
     };
 
+    // Updated to use newer mongoose version approach
     mongoose.set('strictQuery', false);
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('Connected to MongoDB');
